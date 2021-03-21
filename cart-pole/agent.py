@@ -52,11 +52,11 @@ class Agent:
             inter_neurons=20,  # Number of inter neurons
             command_neurons=10,  # Number of command neurons
             motor_neurons=n_actions,  # Number of motor neurons
-            sensory_fanout=4,  # How many outgoing synapses has each sensory neuron
-            inter_fanout=5,  # How many outgoing synapses has each inter neuron
+            sensory_fanout=9,  # How many outgoing synapses has each sensory neuron
+            inter_fanout=6,  # How many outgoing synapses has each inter neuron
             recurrent_command_synapses=0,  # Now many recurrent synapses are in the
             # command neuron layer
-            motor_fanin=4,  # How many incoming synapses has each motor neuron
+            motor_fanin=6,  # How many incoming synapses has each motor neuron
         )
         ncp_cell = LTCCell(wiring, in_features)
         ncp_cell.to(device)
@@ -72,7 +72,7 @@ class Agent:
 
         self.discount_factor = 0.95
         self.epsilon = 1
-        self.epsilon_decay = 0.995
+        self.epsilon_decay = 0.9975
         self.min_epsilon = 0.01
 
         self.device = device
