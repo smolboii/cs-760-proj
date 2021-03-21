@@ -4,10 +4,20 @@ import torch
 from transition import Transition
 from agent import Agent
 from collections import deque
+import argparse
 
 #torch.autograd.set_detect_anomaly(True)
 
 if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('integers', metavar='N', type=int, nargs='+',
+                        help='an integer for the accumulator')
+    parser.add_argument('--sum', dest='accumulate', action='store_const',
+                        const=sum, default=max,
+                        help='sum the integers (default: find the max)')
+
+    args = parser.parse_args()
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Using device:', device, '\n')
@@ -25,7 +35,7 @@ if __name__ == '__main__':
     batch_size=64
     min_transitions = 1_000
 
-    for ep in range(1,num_episodes):
+    for ep in range(1, num_episodes):
 
         state = env.reset()
         done = False
