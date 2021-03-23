@@ -30,13 +30,13 @@ class DQNetwork(nn.Module):
         super(DQNetwork, self).__init__()
 
         self.layers = nn.Sequential(
-            nn.Linear(in_features, 16),
+            nn.Linear(in_features, 32),
             nn.ReLU(),
-            nn.Linear(16, 32),
+            nn.Linear(32, 64),
             nn.ReLU(),
-            nn.Linear(32, 32),
+            nn.Linear(64, 64),
             nn.ReLU(),
-            nn.Linear(32, out_features),
+            nn.Linear(64, out_features),
         )
 
     def forward(self, x):
@@ -61,7 +61,8 @@ class Agent:
         ncp_cell = LTCCell(wiring, in_features)
         ncp_cell.to(device)
 
-        self.model = NCPNetwork(ncp_cell)
+        self.model = DQNetwork(in_features, n_actions)
+        #self.model = NCPNetwork(ncp_cell)
         self.model.to(device)
 
         self.loss_fn = nn.MSELoss()
@@ -102,6 +103,6 @@ class Agent:
         loss.backward()
         self.optimizer.step()
 
-        self.model.ncp_cell.apply_weight_constraints()
+        #self.model.ncp_cell.apply_weight_constraints()
 
         self.epsilon = max(self.epsilon * self.epsilon_decay, self.min_epsilon)

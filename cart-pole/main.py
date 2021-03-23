@@ -23,7 +23,9 @@ if __name__ == '__main__':
     cwd = os.path.dirname(__file__)
     exp_name = args.experiment_name
     exp_dir = os.path.join(cwd, 'experiments', exp_name)
-    if os.path.exists(exp_dir):
+    if args.vis:
+        pass
+    elif os.path.exists(exp_dir):
         raise Exception(f'Folder with specified experiment name "{exp_name}" already exists for this environment!')
     else:
         os.makedirs(exp_dir)
