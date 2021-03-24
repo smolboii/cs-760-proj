@@ -49,14 +49,14 @@ class Agent:
         self.n_actions = n_actions
 
         wiring = kncp.wirings.NCP(
-            inter_neurons=40,  # Number of inter neurons
-            command_neurons=20,  # Number of command neurons
+            inter_neurons=20,  # Number of inter neurons
+            command_neurons=10,  # Number of command neurons
             motor_neurons=n_actions,  # Number of motor neurons
-            sensory_fanout=18,  # How many outgoing synapses has each sensory neuron
-            inter_fanout=14,  # How many outgoing synapses has each inter neuron
+            sensory_fanout=9,  # How many outgoing synapses has each sensory neuron
+            inter_fanout=6,  # How many outgoing synapses has each inter neuron
             recurrent_command_synapses=0,  # Now many recurrent synapses are in the
             # command neuron layer
-            motor_fanin=10,  # How many incoming synapses has each motor neuron
+            motor_fanin=6,  # How many incoming synapses has each motor neuron
         )
         ncp_cell = LTCCell(wiring, in_features)
         ncp_cell.to(device)
