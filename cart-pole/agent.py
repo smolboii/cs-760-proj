@@ -43,20 +43,20 @@ class DQNetwork(nn.Module):
         return self.layers(x)
 
 class Agent:
-    def __init__(self, in_features, n_actions, device):
+    def __init__(self, in_features, n_actions, device, config_obj):
 
         self.in_features = in_features
         self.n_actions = n_actions
 
         wiring = kncp.wirings.NCP(
-            inter_neurons=20,  # Number of inter neurons
-            command_neurons=10,  # Number of command neurons
+            inter_neurons=config_obj['inter_neurons'],  # Number of inter neurons
+            command_neurons=config_obj['command_neurons'],  # Number of command neurons
             motor_neurons=n_actions,  # Number of motor neurons
-            sensory_fanout=9,  # How many outgoing synapses has each sensory neuron
-            inter_fanout=6,  # How many outgoing synapses has each inter neuron
-            recurrent_command_synapses=0,  # Now many recurrent synapses are in the
+            sensory_fanout=config_obj['sensory_fanout'],  # How many outgoing synapses has each sensory neuron
+            inter_fanout=config_obj['inter_fanout'],  # How many outgoing synapses has each inter neuron
+            recurrent_command_synapses=config_obj['recurrent_command_synapses'],  # Now many recurrent synapses are in the
             # command neuron layer
-            motor_fanin=6,  # How many incoming synapses has each motor neuron
+            motor_fanin=config_obj['motor_fanin'],  # How many incoming synapses has each motor neuron
         )
         ncp_cell = LTCCell(wiring, in_features)
         ncp_cell.to(device)
@@ -66,14 +66,14 @@ class Agent:
         self.model.to(device)
 
         self.loss_fn = nn.MSELoss()
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=0.001)
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=config_obj['lr'])
 
         self.update_counter = 0
         self.update_every = 5
 
-        self.discount_factor = 0.95
+        self.discount_factor = config_obj['discount_factor']
         self.epsilon = 1
-        self.epsilon_decay = 0.9975
+        self.epsilon_decay = config_obj['epsilon_decay']
         self.min_epsilon = 0.01
 
         self.device = device

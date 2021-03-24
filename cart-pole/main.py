@@ -8,19 +8,49 @@ import argparse
 import os
 import time
 import datetime
+import json
+
+def complete_config(config_obj):
+
+    default_config = {
+        'inter_neurons': 20,
+        'command_neurons': 10,
+        'sensory_fanout': 9,
+        'inter_fanout': 6,
+        'recurrent_command_synapses': 0,
+        'motor_fanin': 6,
+        'discount_factor': 0.95,
+        'epsilon_decay': 0.9975,
+        'min_epsilon': 0.01,
+        'lr': 0.001,
+        'batch_size': 64
+    }
+
+    # add defaults to config obj if values were not specified
+    new_config = default_config.copy()
+    new_config.update(config_obj)
+
+    return new_config
 
 if __name__ == '__main__':
+
+    cwd = os.path.dirname(__file__)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('-vis', action='store_true', help='runs environment in visualisation mode')
     parser.add_argument('-ex', '--experiment-name', default='def_exp', help='name of the experiment')
+    parser.add_argument('-cf', '--config-path', default=os.path.join(cwd, 'config.json'), help='path to the model config json file')
     parser.add_argument('-ch', '--checkpoint-path', help='path to the model checkpoint to load')
-    parser.add_argument('-n', '--num-episodes', default=2000, type=int, help='number of episodes to run')
+    parser.add_argument('-n', '--num-episodes', default=600, type=int, help='number of episodes to run')
     parser.add_argument('-ci', '--checkpoint-interval', default=20, type=int, help='number of episodes between each checkpoint')
 
     args = parser.parse_args()
 
-    cwd = os.path.dirname(__file__)
+    with open(args.config_path) as cf:
+        config_obj = json.load(cf)
+
+    config_obj = complete_config(config_obj)
+
     exp_name = args.experiment_name
     exp_dir = os.path.join(cwd, 'experiments', exp_name)
     if args.vis:
@@ -29,12 +59,15 @@ if __name__ == '__main__':
         raise Exception(f'Folder with specified experiment name "{exp_name}" already exists for this environment!')
     else:
         os.makedirs(exp_dir)
+        # save config file to experiment folder to describe experiment
+        with open(os.path.join(exp_dir, 'config.json'), 'w') as exp_cf:
+            json.dump(config_obj, exp_cf, indent=4)  
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Using device:', device, '\n')
 
     env = gym.make('CartPole-v1')
-    agent = Agent(len(env.observation_space.low), env.action_space.n, device)
+    agent = Agent(len(env.observation_space.low), env.action_space.n, device, config_obj)
 
     if args.checkpoint_path != None:
         agent.model.load_state_dict(torch.load(args.checkpoint_path))
@@ -46,9 +79,10 @@ if __name__ == '__main__':
     chkpt_every = args.checkpoint_interval
     sum_rewards = []
 
-    batch_size=64
+    batch_size=config_obj['batch_size']
     min_transitions = 1_000
 
+    iterations = 0
     for ep in range(1, num_episodes):
 
         state = env.reset()
@@ -68,6 +102,7 @@ if __name__ == '__main__':
             state = new_state
 
             if len(transitions) > min_transitions and not args.vis:
+                iterations += 1
                 agent.train(np.random.choice(transitions, batch_size, replace=False))
 
         sum_rewards.append(np.sum(ep_rewards))
@@ -82,7 +117,7 @@ if __name__ == '__main__':
             torch.save(agent.model.state_dict(), os.path.join(exp_dir, f'episode={ep} avg_reward={avg_reward}.pt'))
 
             with open(os.path.join(exp_dir, 'data.txt'), 'a') as data_file:
-                data_file.write(f'{ep} {avg_reward} {time_elapsed} \n')
+                data_file.write(f'{ep} {avg_reward} {time_elapsed} {iterations}\n')
 
             sum_rewards = []
 
