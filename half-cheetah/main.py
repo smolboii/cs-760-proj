@@ -66,8 +66,8 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Using device:', device, '\n')
 
-    env = gym.make('CartPole-v1')
-    agent = Agent(len(env.observation_space.low), env.action_space.n, device, config_obj)
+    env = gym.make('HalfCheetah-v2')
+    agent = Agent(len(env.observation_space.low), len(env.action_space.high), device, config_obj)
 
     if args.checkpoint_path != None:
         agent.model.load_state_dict(torch.load(args.checkpoint_path))
