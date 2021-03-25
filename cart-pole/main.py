@@ -22,7 +22,9 @@ def complete_config(config_obj):
         'discount_factor': 0.95,
         'epsilon_decay': 0.9975,
         'min_epsilon': 0.01,
-        'lr': 0.001,
+        "lr": 0.01,
+        "lr_decay": 0.1,
+        "lr_decay_interval": 200,
         'batch_size': 64
     }
 
@@ -84,6 +86,7 @@ if __name__ == '__main__':
     min_transitions = 1_000
 
     iterations = 0
+    lr = config_obj['lr']
     for ep in range(1, num_episodes):
 
         state = env.reset()
@@ -109,6 +112,10 @@ if __name__ == '__main__':
 
         sum_rewards.append(np.sum(ep_rewards))
 
+        if ep % config_obj['lr_decay_interval'] == 0:
+            lr *= config_obj['lr_decay_rate']
+            agent.optimizer = torch.optim.Adam(agent.model.parameters(), lr=lr)
+
         if ep % chkpt_every == 0 and not args.vis:
 
             # save model checkpoint and log training progress
@@ -126,7 +133,7 @@ if __name__ == '__main__':
                     ep_rewards.append(reward)
                     state = new_state
                 eval_rewards.append(np.sum(ep_rewards))
-
+            
             avg_train_reward = np.average(sum_rewards)
             avg_eval_reward = np.average(eval_rewards)
 

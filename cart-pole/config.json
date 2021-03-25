@@ -9,5 +9,7 @@
     "epsilon_decay": 0.9975,
     "min_epsilon": 0.01,
     "lr": 0.01,
+    "lr_decay_rate": 0.1,
+    "lr_decay_interval": 200,
     "batch_size": 32
 }
