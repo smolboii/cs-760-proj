@@ -19,7 +19,7 @@ def complete_config(config_obj):
         'inter_fanout': 6,
         'recurrent_command_synapses': 0,
         'motor_fanin': 6,
-        'discount_factor': 0.95,
+        'discount_factor': 0.99,
         'epsilon_decay': 0.9975,
         'min_epsilon': 0.01,
         "lr": 0.01,
@@ -68,7 +68,7 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print('Using device:', device, '\n')
 
-    env = gym.make('CartPole-v1')
+    env = gym.make('LunarLander-v2')
     agent = Agent(len(env.observation_space.low), env.action_space.n, device, config_obj)
 
     if args.checkpoint_path != None:
@@ -110,7 +110,6 @@ if __name__ == '__main__':
                 iterations += 1
                 agent.train(np.random.choice(transitions, batch_size, replace=False))
 
-        print(np.sum(ep_rewards))
         sum_rewards.append(np.sum(ep_rewards))
 
         if ep % config_obj['lr_decay_interval'] == 0:
