@@ -1,0 +1,15 @@
+{
+    "inter_neurons": 40,
+    "command_neurons": 20,
+    "sensory_fanout": 40,
+    "inter_fanout": 20,
+    "recurrent_command_synapses": 0,
+    "motor_fanin": 20,
+    "discount_factor": 0.99,
+    "epsilon_decay": 0.9975,
+    "min_epsilon": 0.01,
+    "lr": 0.01,
+    "lr_decay_rate": 0.1,
+    "lr_decay_interval": 200,
+    "batch_size": 32
+}

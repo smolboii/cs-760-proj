@@ -30,13 +30,15 @@ class DQNetwork(nn.Module):
         super(DQNetwork, self).__init__()
 
         self.layers = nn.Sequential(
-            nn.Linear(in_features, 32),
+            nn.Linear(in_features, 256),
             nn.ReLU(),
-            nn.Linear(32, 64),
+            nn.Linear(256, 256),
             nn.ReLU(),
-            nn.Linear(64, 64),
+            nn.Linear(256, 20),
             nn.ReLU(),
-            nn.Linear(64, out_features),
+            nn.Linear(20, 10),
+            nn.ReLU(),
+            nn.Linear(10, out_features),
         )
 
     def forward(self, x):
@@ -54,17 +56,18 @@ class Agent:
             motor_neurons=n_actions,  # Number of motor neurons
             sensory_fanout=config_obj['sensory_fanout'],  # How many outgoing synapses has each sensory neuron
             inter_fanout=config_obj['inter_fanout'],  # How many outgoing synapses has each inter neuron
-            recurrent_command_synapses=config_obj['recurrent_command_synapses'],  # Now many recurrent synapses are in the
+            recurrent_command_synapses=config_obj['recurrent_command_synapses'],  # How many recurrent synapses are in the
             # command neuron layer
             motor_fanin=config_obj['motor_fanin'],  # How many incoming synapses has each motor neuron
         )
         ncp_cell = LTCCell(wiring, in_features)
         ncp_cell.to(device)
 
-        #self.model = DQNetwork(in_features, n_actions)
         self.model = NCPNetwork(ncp_cell)
+        #self.model = DQNetwork(in_features, n_actions)
         self.model.to(device)
         self.target_model = NCPNetwork(ncp_cell)
+        #self.target_model = DQNetwork(in_features, n_actions)
         self.target_model.to(device)
         self.target_model.load_state_dict(self.model.state_dict())
 
@@ -83,9 +86,10 @@ class Agent:
 
     def get_action(self, state, eval=False):
         if eval or random.random() > self.epsilon:
-            return torch.argmax(self.model(torch.tensor([state]).float().to(self.device))).item()
+            with torch.no_grad():
+                return torch.argmax(self.model(torch.tensor([state]).float().to(self.device))).item()
         else:
-            return random.randrange(0, self.n_actions);
+            return random.randrange(0, self.n_actions)
 
     def train(self, transitions):
 

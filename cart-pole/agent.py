@@ -61,10 +61,11 @@ class Agent:
         ncp_cell = LTCCell(wiring, in_features)
         ncp_cell.to(device)
 
-        #self.model = DQNetwork(in_features, n_actions)
-        self.model = NCPNetwork(ncp_cell)
+        self.model = DQNetwork(in_features, n_actions)
+        #self.model = NCPNetwork(ncp_cell)
         self.model.to(device)
-        self.target_model = NCPNetwork(ncp_cell)
+        self.target_model = DQNetwork(in_features, n_actions)
+        #self.target_model = NCPNetwork(ncp_cell)
         self.target_model.to(device)
         self.target_model.load_state_dict(self.model.state_dict())
 
@@ -83,7 +84,8 @@ class Agent:
 
     def get_action(self, state, eval=False):
         if eval or random.random() > self.epsilon:
-            return torch.argmax(self.model(torch.tensor([state]).float().to(self.device))).item()
+            with torch.no_grad():
+                return torch.argmax(self.model(torch.tensor([state]).float().to(self.device))).item()
         else:
             return random.randrange(0, self.n_actions);
 
@@ -106,7 +108,7 @@ class Agent:
         loss.backward()
         self.optimizer.step()
 
-        self.model.ncp_cell.apply_weight_constraints()
+        #self.model.ncp_cell.apply_weight_constraints()
 
         self.epsilon = max(self.epsilon * self.epsilon_decay, self.min_epsilon)
 

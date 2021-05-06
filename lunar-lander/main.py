@@ -20,7 +20,7 @@ def complete_config(config_obj):
         'recurrent_command_synapses': 0,
         'motor_fanin': 6,
         'discount_factor': 0.99,
-        'epsilon_decay': 0.9975,
+        'epsilon_decay': 0.99975,
         'min_epsilon': 0.01,
         "lr": 0.01,
         "lr_decay": 0.1,
@@ -52,6 +52,8 @@ if __name__ == '__main__':
         config_obj = json.load(cf)
 
     config_obj = complete_config(config_obj)
+    print('\nCompleted configuration object:')
+    print(config_obj)
 
     exp_name = args.experiment_name
     exp_dir = os.path.join(cwd, 'experiments', exp_name)

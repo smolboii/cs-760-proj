@@ -52,6 +52,8 @@ if __name__ == '__main__':
         config_obj = json.load(cf)
 
     config_obj = complete_config(config_obj)
+    print('\nCompleted configuration object:')
+    print(config_obj)
 
     exp_name = args.experiment_name
     exp_dir = os.path.join(cwd, 'experiments', exp_name)
