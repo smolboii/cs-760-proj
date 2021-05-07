@@ -108,7 +108,7 @@ class Agent:
         loss.backward()
         self.optimizer.step()
 
-        #self.model.ncp_cell.apply_weight_constraints()
+        self.model.ncp_cell.apply_weight_constraints()
 
         self.epsilon = max(self.epsilon * self.epsilon_decay, self.min_epsilon)
 
