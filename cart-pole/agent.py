@@ -61,11 +61,11 @@ class Agent:
         ncp_cell = LTCCell(wiring, in_features)
         ncp_cell.to(device)
 
-        self.model = DQNetwork(in_features, n_actions)
-        #self.model = NCPNetwork(ncp_cell)
+        #self.model = DQNetwork(in_features, n_actions)
+        self.model = NCPNetwork(ncp_cell)
         self.model.to(device)
-        self.target_model = DQNetwork(in_features, n_actions)
-        #self.target_model = NCPNetwork(ncp_cell)
+        #self.target_model = DQNetwork(in_features, n_actions)
+        self.target_model = NCPNetwork(ncp_cell)
         self.target_model.to(device)
         self.target_model.load_state_dict(self.model.state_dict())
 
