@@ -3,7 +3,6 @@ import numpy as np
 import torch
 from transition import Transition
 from agent import Agent
-from collections import deque
 import argparse
 import os
 import time
@@ -20,12 +19,14 @@ def complete_config(config_obj):
         'recurrent_command_synapses': 0,
         'motor_fanin': 6,
         'discount_factor': 0.99,
-        'epsilon_decay': 0.99975,
+        'epsilon_decay': 0.9975,
         'min_epsilon': 0.01,
         "lr": 0.01,
-        "lr_decay": 0.1,
+        "lr_decay_rate": 0.1,
         "lr_decay_interval": 200,
-        'batch_size': 64
+        'batch_size': 64,
+        'min_mem': 1_000,
+        'max_mem': 1_000_000
     }
 
     # add defaults to config obj if values were not specified
@@ -79,13 +80,9 @@ if __name__ == '__main__':
 
     start_time = round(time.time())
 
-    transitions = deque(maxlen=1_000_000)
     num_episodes = args.num_episodes
     chkpt_every = args.checkpoint_interval
     sum_rewards = []
-
-    batch_size=config_obj['batch_size']
-    min_transitions = 1_000
 
     iterations = 0
     lr = config_obj['lr']
@@ -96,8 +93,8 @@ if __name__ == '__main__':
         ep_rewards = []
 
         while not done:
-
-            action = agent.get_action(state, eval=args.vis)
+            
+            action = agent.get_action(state, train=(not args.vis))
             new_state, reward, done, _ = env.step(action)
             
             if args.vis:            
@@ -105,12 +102,11 @@ if __name__ == '__main__':
 
             ep_rewards.append(reward)
 
-            transitions.append(Transition(state, action, new_state, reward, done))
-            state = new_state
+            if not args.vis:
+                agent.update_mem(Transition(state, action, new_state, reward, done))
+                agent.train()
 
-            if len(transitions) > min_transitions and not args.vis:
-                iterations += 1
-                agent.train(np.random.choice(transitions, batch_size, replace=False))
+            state = new_state
 
         sum_rewards.append(np.sum(ep_rewards))
 
@@ -130,7 +126,7 @@ if __name__ == '__main__':
 
                 ep_rewards = []
                 while not done:
-                    action = agent.get_action(state, eval=True)
+                    action = agent.get_action(state, train=False)
                     new_state, reward, done, _ = env.step(action)
                     ep_rewards.append(reward)
                     state = new_state
