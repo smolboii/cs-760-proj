@@ -10,7 +10,7 @@
     "min_epsilon": 0.01,
     "lr": 0.001,
     "lr_decay_rate": 0.1,
-    "lr_decay_interval": 150,
+    "lr_decay_interval": 500,
     "batch_size": 64,
     "min_mem": 1000,
     "max_mem": 1000000

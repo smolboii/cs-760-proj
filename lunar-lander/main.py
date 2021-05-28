@@ -26,7 +26,8 @@ def complete_config(config_obj):
         "lr_decay_interval": 200,
         'batch_size': 64,
         'min_mem': 1_000,
-        'max_mem': 1_000_000
+        'max_mem': 1_000_000,
+        'random_seed': False
     }
 
     # add defaults to config obj if values were not specified

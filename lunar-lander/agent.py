@@ -2,6 +2,7 @@ import numpy as np
 import torch.nn.functional as F
 import torch.nn as nn
 import random
+import time
 from collections import deque
 import kerasncp as kncp
 from kerasncp.torch import LTCCell
@@ -34,6 +35,7 @@ class NCPNetwork(nn.Module):
             recurrent_command_synapses=config_obj['recurrent_command_synapses'],  # How many recurrent synapses are in the
             # command neuron layer
             motor_fanin=config_obj['motor_fanin'],  # How many incoming synapses has each motor neuron
+            seed=int(time.time()) if config_obj['random_seed'] else 22222 # seed for wiring configuration (22222 is paper repo default)
         )
         ncp_cell = LTCCell(wiring, 256)
         ncp_cell.to(device)
@@ -61,11 +63,7 @@ class DQNetwork(nn.Module):
             nn.ReLU(),
             nn.Linear(256, 256),
             nn.ReLU(),
-            nn.Linear(256, 20),
-            nn.ReLU(),
-            nn.Linear(20, 10),
-            nn.ReLU(),
-            nn.Linear(10, n_actions)
+            nn.Linear(256, n_actions)
         )
 
     def forward(self, x):
@@ -76,12 +74,12 @@ class Agent:
 
         self.n_actions = n_actions
 
-        #self.model = NCPNetwork(in_features, n_actions, config_obj, device)
-        self.model = DQNetwork(in_features, n_actions)
+        self.model = NCPNetwork(in_features, n_actions, config_obj, device)
+        #self.model = DQNetwork(in_features, n_actions)
         self.model.to(device)
 
-        #self.target_model = NCPNetwork(in_features, n_actions, config_obj, device)
-        self.target_model = DQNetwork(in_features, n_actions)
+        self.target_model = NCPNetwork(in_features, n_actions, config_obj, device)
+        #self.target_model = DQNetwork(in_features, n_actions)
         self.target_model.to(device)
         self.target_model.load_state_dict(self.model.state_dict())
 
@@ -142,7 +140,7 @@ class Agent:
         loss.backward()
         self.optimizer.step()
 
-        #self.model.ncp_cell.apply_weight_constraints()
+        self.model.ncp_cell.apply_weight_constraints()
 
         self.epsilon = max(self.epsilon * self.epsilon_decay, self.min_epsilon)
 

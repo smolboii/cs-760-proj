@@ -6,7 +6,7 @@
     "recurrent_command_synapses": 0,
     "motor_fanin": 6,
     "discount_factor": 0.95,
-    "epsilon_decay": 0.999975,
+    "epsilon_decay": 0.9975,
     "min_epsilon": 0.05,
     "lr": 0.01,
     "lr_decay_rate": 0.1,
