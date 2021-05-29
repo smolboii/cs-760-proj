@@ -27,7 +27,7 @@ def complete_config(config_obj):
         'batch_size': 64,
         'min_mem': 1_000,
         'max_mem': 1_000_000,
-        'wiring_seed': 22222
+        'wiring_seed': 22222  # seed used in our paper and original ncp paper
     }
 
     # add defaults to config obj if values were not specified
@@ -106,6 +106,7 @@ if __name__ == '__main__':
             if not args.vis:
                 agent.update_mem(Transition(state, action, new_state, reward, done))
                 agent.train()
+                iterations += 1
 
             state = new_state
 
