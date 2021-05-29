@@ -1,10 +1,10 @@
 {
     "inter_neurons": 20,
     "command_neurons": 10,
-    "sensory_fanout": 9,
-    "inter_fanout": 6,
+    "sensory_fanout": 5,
+    "inter_fanout": 4,
     "recurrent_command_synapses": 0,
-    "motor_fanin": 6,
+    "motor_fanin": 5,
     "discount_factor": 0.99,
     "epsilon_decay": 0.99975,
     "min_epsilon": 0.01,

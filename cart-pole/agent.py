@@ -27,7 +27,7 @@ class NCPNetwork(nn.Module):
             recurrent_command_synapses=config_obj['recurrent_command_synapses'],  # How many recurrent synapses are in the
             # command neuron layer
             motor_fanin=config_obj['motor_fanin'],  # How many incoming synapses has each motor neuron
-            seed=int(time.time()) if config_obj['random_seed'] else 22222 # seed for wiring configuration (22222 is paper repo default)
+            seed=config_obj['wiring_seed']  # seed for wiring configuration (22222 is paper repo default)
         )
         ncp_cell = LTCCell(wiring, in_features)
         ncp_cell.to(device)
