@@ -20,9 +20,9 @@ class NCPNetwork(nn.Module):
         super(NCPNetwork, self).__init__()
 
         self.backbone_fcn = nn.Sequential(
-            nn.Linear(in_features, 256),
+            nn.Linear(in_features, 16),
             nn.ReLU(),
-            nn.Linear(256, 256),
+            nn.Linear(16, 32),
             nn.ReLU()
         )
 
@@ -37,7 +37,7 @@ class NCPNetwork(nn.Module):
             motor_fanin=config_obj['motor_fanin'],  # How many incoming synapses has each motor neuron
             seed=config_obj['wiring_seed'] # seed for wiring configuration (22222 is paper repo default)
         )
-        ncp_cell = LTCCell(wiring, 256)
+        ncp_cell = LTCCell(wiring, 32)
         ncp_cell.to(device)
 
         self.ncp_cell = ncp_cell
@@ -59,11 +59,11 @@ class DQNetwork(nn.Module):
         super(DQNetwork, self).__init__()
 
         self.layers = nn.Sequential(
-            nn.Linear(in_features, 256),
+            nn.Linear(in_features, 16),
             nn.ReLU(),
-            nn.Linear(256, 256),
+            nn.Linear(16, 32),
             nn.ReLU(),
-            nn.Linear(256, n_actions)
+            nn.Linear(32, n_actions)
         )
 
     def forward(self, x):
@@ -74,12 +74,12 @@ class Agent:
 
         self.n_actions = n_actions
 
-        self.model = NCPNetwork(in_features, n_actions, config_obj, device)
-        #self.model = DQNetwork(in_features, n_actions)
+        #self.model = NCPNetwork(in_features, n_actions, config_obj, device)
+        self.model = DQNetwork(in_features, n_actions)
         self.model.to(device)
 
-        self.target_model = NCPNetwork(in_features, n_actions, config_obj, device)
-        #self.target_model = DQNetwork(in_features, n_actions)
+        #self.target_model = NCPNetwork(in_features, n_actions, config_obj, device)
+        self.target_model = DQNetwork(in_features, n_actions)
         self.target_model.to(device)
         self.target_model.load_state_dict(self.model.state_dict())
 
@@ -140,7 +140,7 @@ class Agent:
         loss.backward()
         self.optimizer.step()
 
-        self.model.ncp_cell.apply_weight_constraints()
+        #self.model.ncp_cell.apply_weight_constraints()
 
         self.epsilon = max(self.epsilon * self.epsilon_decay, self.min_epsilon)
 

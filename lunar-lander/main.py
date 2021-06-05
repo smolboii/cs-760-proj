@@ -1,6 +1,7 @@
 import gym
 import numpy as np
 import torch
+import shutil
 from transition import Transition
 from agent import Agent
 import argparse
@@ -47,6 +48,7 @@ if __name__ == '__main__':
     parser.add_argument('-ch', '--checkpoint-path', help='path to the model checkpoint to load')
     parser.add_argument('-n', '--num-episodes', default=600, type=int, help='number of episodes to run')
     parser.add_argument('-ci', '--checkpoint-interval', default=20, type=int, help='number of episodes between each checkpoint')
+    parser.add_argument('-ow', '--overwrite', action='store_true', help='specifies whether pre-existing experiment folder should be overwritten')
 
     args = parser.parse_args()
 
@@ -61,9 +63,10 @@ if __name__ == '__main__':
     exp_dir = os.path.join(cwd, 'experiments', exp_name)
     if args.vis:
         pass
-    elif os.path.exists(exp_dir):
-        raise Exception(f'Folder with specified experiment name "{exp_name}" already exists for this environment!')
+    elif os.path.exists(exp_dir) and not args.overwrite:
+        raise Exception(f'Folder with specified experiment name "{exp_name}" already exists for this environment (add -ow argument to overwrite)!')
     else:
+        shutil.rmtree(exp_dir, ignore_errors=True)  # remove pre-existing folder
         os.makedirs(exp_dir)
         # save config file to experiment folder to describe experiment
         with open(os.path.join(exp_dir, 'config.json'), 'w') as exp_cf:
